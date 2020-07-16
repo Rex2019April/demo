@@ -4,14 +4,14 @@ currency exchange rate specified by user or read from file.
 
 Run:
 --------------------------------------------------------------------------------------------------------------------
-In Command line, run the jar file to start this program:
+In command line, run the jar file to start this program:
 java -jar demo/out/artifacts/demo_jar/demo.jar
 you can specify the currency and exchange rate files like this(these files are optional):
 java -jar demo.jar -cD:/data/currency.txt -eD:/data/exchange.txt
 -c means currency data file, -e means exchange rate data file.
 
 Or in you IDE, run com.company.Main.java, you can also specify the program argument values like above through IDE to
-read the data files when program start up.
+read the data files when program starting up.
 
 During the time of program running, you can specify the data files anytime using c and e command as described in the
 following Usage section.
