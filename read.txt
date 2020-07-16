@@ -31,7 +31,7 @@ Usage:
 4. Enter "e exchangeRatePath.txt" to specify the exchange rate data file path, you should replace "exchangeRatePath.txt"
     with your own file path. the new file's data will replace the previous data.
 5. Enter "list" to show all data.
-6. Enter "clear" to clear all currency and exchange data.
+6. Enter "clear" to clear currency data.
 7. Enter "quit/exit" to exit.
 8. Enter "help" for help information.
 --------------------------------------------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ public class Main {
             "3. Enter \"c currencyPath.txt\" to specify the currency data file path, you should replace \"currencyPath.txt\" with your own file path.\n" +
             "4. Enter \"e exchangeRatePath.txt\" to specify the exchange rate data file path, you should replace \"exchangeRatePath.txt\" with your own file path.\n" +
             "5. Enter \"list\" to show all data.\n" +
-            "6. Enter \"clear\" to clear all data.\n" +
+            "6. Enter \"clear\" to clear currency data.\n" +
             "7. Enter \"quit/exit\" to exit.\n" +
             "8. Enter \"help\" for help information.\n" +
                                          "-------------------------------------------------------------\n";
@@ -223,8 +223,8 @@ public class Main {
                         list(currencyAmount, false);
                     }else if("clear".equalsIgnoreCase(input)){
                         currencyAmount.clear();
-                        exchangeRate.clear();
-                        System.out.println("all data is removed");
+//                        exchangeRate.clear();
+                        System.out.println("currency data is removed");
                     }else{
                         System.out.println("error: Invalid input, input \"help\" for help information.");
 //                        System.out.println(instructions);
@@ -275,7 +275,7 @@ public class Main {
 //                    System.out.println(instructions);
                 }
             } catch (IOException e) {
-                System.out.println("error: input failed, please try again or input \"help\" for help information");
+//                System.out.println("error: input failed, please try again or input \"help\" for help information");
             }
         }
     }
