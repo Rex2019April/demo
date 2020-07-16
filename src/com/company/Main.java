@@ -168,30 +168,31 @@ public class Main {
 
     private static boolean readDataIfFilesSpecified(String[] args){
         if(args!=null && args.length>0){
-                boolean success=true;
-                for(String arg: args){
-                    if(arg.startsWith("-c") || arg.startsWith("-C")){
-                        String currencyFile = arg.replaceFirst("-c", "").replaceFirst("-C","");
-                        success = success && readCurrencyFile(currencyFile);
-                        if(!success){
-                            return success;
-                        }
-                    }
-                    if(arg.startsWith("-e") || arg.startsWith("-E")){
-                        String exFile = arg.replaceFirst("-e", "").replaceFirst("-E","");
-                        success = success && readExchangeFile(exFile);
-                        if(!success){
-                            return success;
-                        }
+            boolean success=true;
+            for(String arg: args){
+                if(arg.startsWith("-c") || arg.startsWith("-C")){
+                    String currencyFile = arg.replaceFirst("-c", "").replaceFirst("-C","");
+                    success = success && readCurrencyFile(currencyFile);
+                    if(!success){
+                        return success;
                     }
                 }
+                if(arg.startsWith("-e") || arg.startsWith("-E")){
+                    String exFile = arg.replaceFirst("-e", "").replaceFirst("-E","");
+                    success = success && readExchangeFile(exFile);
+                    if(!success){
+                        return success;
+                    }
+                }
+            }
             return success;
         }else{
             return false;
         }
     }
-    public static void main(String[] args){
 
+
+    public static void main(String[] args){
         if(args!=null && args.length>0){
             // read data from file if file specified throw start up parameters.
             boolean success = readDataIfFilesSpecified(args);
@@ -230,7 +231,6 @@ public class Main {
 //                        System.out.println(instructions);
                     }
                 }else if(arr.length==2){
-//                    if(Pattern.matches(regex, arr[0])){
                     if("c".equalsIgnoreCase(arr[0])){
                         readCurrencyFile(arr[1]);
                     }else if("e".equalsIgnoreCase(arr[0])){
