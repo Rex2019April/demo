@@ -30,7 +30,6 @@ public class Main {
      */
     private static String instructionsForCurrency="-------------------------instructions-------------------------\n" +
             "currency and amount format like this:\n\tUSD 1000\n\tHKD 100\n" +
-
                                               "--------------------------------------------------------------\n";
 
     private static String instructionsForExchange="-------------------------instructions-------------------------\n" +
@@ -42,8 +41,10 @@ public class Main {
     private static ConcurrentHashMap<String, Double> currencyAmount = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Double> exchangeRate = new ConcurrentHashMap<>();
 
+    private static final long delay = 5000;
+    private static final long intevalPeriod = 60 * 1000;
 
-    private static final  String regex="\\b[A-Za-z]{3}\\b";
+    private static final String regex="\\b[A-Za-z]{3}\\b";
     /**
      * load exchange rate file
      * @param filePath
@@ -229,8 +230,14 @@ public class Main {
 //                        System.out.println(instructions);
                     }
                 }else if(arr.length==2){
-                    // add currency data
                     if(Pattern.matches(regex, arr[0])){
+                        if("c".equalsIgnoreCase(arr[0])){
+                        readCurrencyFile(arr[1]);
+                    }else if("e".equalsIgnoreCase(arr[0])){
+                        readExchangeFile(arr[1]);
+                    }else if(Pattern.matches(regex, arr[0])){
+                            // add currency data
+                        }
                         try{
                             String currency = arr[0].toUpperCase();
                             if(currencyAmount.get(currency)==null){
@@ -241,10 +248,6 @@ public class Main {
                         }catch (NumberFormatException e){
                             System.out.println("error: number format is invalid");
                         }
-                    }else if("c".equalsIgnoreCase(arr[0])){
-                        readCurrencyFile(arr[1]);
-                    }else if("e".equalsIgnoreCase(arr[0])){
-                        readExchangeFile(arr[1]);
                     }else{
                         System.out.println("error: Invalid input, input \"help\" for help information.");
                     }
@@ -289,8 +292,7 @@ public class Main {
             }
         };
         Timer timer = new Timer();
-        long delay = 5000;
-        long intevalPeriod = 60 * 1000;
+
         timer.scheduleAtFixedRate(task, delay, intevalPeriod);
     }
 

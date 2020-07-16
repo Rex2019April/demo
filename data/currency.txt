@@ -36,3 +36,20 @@ HKD 100
 USD -100
 CNY 2000
 HKD 200
+
+adf 523
+
+adc 1234
+
+fsf 435
+dfs 2131
+faf 643
+cad 543
+
+adf 123
+jpp 891
+hga 456
+yua 622
+fcg 6734
+iut 523
+uii 909
