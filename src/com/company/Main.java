@@ -60,6 +60,9 @@ public class Main {
                 String line = null;
                 while((line = bw.readLine()) != null){
                     line = line.trim();
+                    if(line==null || line.length()<=0){
+                        continue;
+                    }
                     String[] arr = line.split(" ");
                     // add exchange data
                     if(Pattern.matches(regex, arr[0])){
@@ -117,6 +120,9 @@ public class Main {
                 String line = null;
                 while((line = bw.readLine()) != null){
                     line = line.trim();
+                    if(line==null || line.length()<=0){
+                        continue;
+                    }
                     String[] arr = line.split(" ");
                     // add currency data
                     if(Pattern.matches(regex, arr[0])){
@@ -140,7 +146,6 @@ public class Main {
                         break;
                     }
                 }
-
             } catch (FileNotFoundException e) {
                 System.out.println("error: file not found:"+f.getAbsoluteFile());
                 success=false;
