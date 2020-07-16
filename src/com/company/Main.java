@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -22,21 +23,27 @@ public class Main {
             "6. Enter \"clear\" to clear all data.\n" +
             "7. Enter \"quit/exit\" to exit.\n" +
             "8. Enter \"help\" for help information.\n" +
-            "--------------------------------------------------\n";
+                                         "-------------------------------------------------------------\n";
 
     /**
      * help info for load data from file
      */
-    private static String instructionsForFile="-------------------------instructions-------------------------\n" +
-            "1. currency and amount format like this:\nUSD 1000\nHKD 100\n" +
-            "2. currency exchange rate compared to USD format like this: \n" +
-            "hkd 0.128975\n" +
-            "CNY 0.142868\n\n"+
+    private static String instructionsForCurrency="-------------------------instructions-------------------------\n" +
+            "currency and amount format like this:\n\tUSD 1000\n\tHKD 100\n" +
+
                                               "--------------------------------------------------------------\n";
+
+    private static String instructionsForExchange="-------------------------instructions-------------------------\n" +
+            "currency exchange rate compared to USD format like this: \n" +
+            "\thkd 0.128975\n" +
+            "\tCNY 0.142868\n\n"+
+            "--------------------------------------------------------------\n";
 
     private static ConcurrentHashMap<String, Double> currencyAmount = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Double> exchangeRate = new ConcurrentHashMap<>();
 
+
+    private static final  String regex="\\b[A-Za-z]{3}\\b";
     /**
      * load exchange rate file
      * @param filePath
@@ -55,24 +62,32 @@ public class Main {
                     line = line.trim();
                     String[] arr = line.split(" ");
                     // add exchange data
-                    if(arr[0].length()==3){
-                        String currency = arr[0].toUpperCase();
-                        if(temp.get(currency)==null){
-                            temp.put(currency, Double.valueOf(arr[1]));
-                        }else{
-                            temp.replace(currency, Double.valueOf(arr[1]));
+                    if(Pattern.matches(regex, arr[0])){
+                        try{
+                            String currency = arr[0].toUpperCase();
+                            if(temp.get(currency)==null){
+                                temp.put(currency, Double.valueOf(arr[1]));
+                            }else{
+                                temp.replace(currency, Double.valueOf(arr[1]));
+                            }
+                        }catch (NumberFormatException e){
+                            System.out.println("error: exchange format is invalid:"+line);
+                            System.out.println(instructionsForExchange);
+                            success=false;
+                            break;
                         }
                     }else{
                         System.out.println("error: exchange format is invalid:"+line);
+                        System.out.println(instructionsForExchange);
                         success=false;
                         break;
                     }
                 }
             } catch (FileNotFoundException e) {
-                System.out.println("error: file not found");
-                success=false;
+                System.out.println("error: file not found:" + f.getAbsoluteFile());
+                success = false;
             } catch (IOException e) {
-                System.out.println("error: file read error");
+                System.out.println("error: file read error:"+f.getAbsoluteFile());
                 success=false;
             }
             if(success){
@@ -104,26 +119,33 @@ public class Main {
                     line = line.trim();
                     String[] arr = line.split(" ");
                     // add currency data
-                    if(arr[0].length()==3){
-                        String currency = arr[0].toUpperCase();
-                        if(temp.get(currency)==null){
-                            temp.put(currency, Double.valueOf(arr[1]));
-                        }else{
-                            temp.replace(currency, temp.get(currency) + Double.valueOf(arr[1]));
+                    if(Pattern.matches(regex, arr[0])){
+                        try{
+                            String currency = arr[0].toUpperCase();
+                            if(temp.get(currency)==null){
+                                temp.put(currency, Double.valueOf(arr[1]));
+                            }else{
+                                temp.replace(currency, temp.get(currency) + Double.valueOf(arr[1]));
+                            }
+                        }catch (NumberFormatException e){
+                            System.out.println("error: currency format is invalid:"+line);
+                            System.out.println(instructionsForCurrency);
+                            success=false;
+                            break;
                         }
                     }else{
-//                        throw new Exception("currency format is invalid");
                         System.out.println("error: currency format is invalid:"+line);
+                        System.out.println(instructionsForCurrency);
                         success=false;
                         break;
                     }
                 }
 
             } catch (FileNotFoundException e) {
-                System.out.println("error: file not found");
+                System.out.println("error: file not found:"+f.getAbsoluteFile());
                 success=false;
             } catch (IOException e) {
-                System.out.println("error: file read error");
+                System.out.println("error: file read error:"+f.getAbsoluteFile());
                 success=false;
             }
             if(success){
@@ -138,31 +160,39 @@ public class Main {
     }
 
 
-    private static void readDataIfFileSpecified(String[] args){
+    private static boolean readDataIfFilesSpecified(String[] args){
         if(args!=null && args.length>0){
-            try{
+                boolean success=true;
                 for(String arg: args){
                     if(arg.startsWith("-c") || arg.startsWith("-C")){
                         String currencyFile = arg.replaceFirst("-c", "").replaceFirst("-C","");
-                        readCurrencyFile(currencyFile);
+                        success = success && readCurrencyFile(currencyFile);
+                        if(!success){
+                            return success;
+                        }
                     }
                     if(arg.startsWith("-e") || arg.startsWith("-E")){
                         String exFile = arg.replaceFirst("-e", "").replaceFirst("-E","");
-                        readExchangeFile(exFile);
+                        success = success && readExchangeFile(exFile);
+                        if(!success){
+                            return success;
+                        }
                     }
                 }
-            }catch (Exception e){
-                e.printStackTrace();
-                System.out.println(instructionsForFile);
-                throw e;
-            }
+            return success;
+        }else{
+            return false;
         }
     }
     public static void main(String[] args){
 
-        // read data from file if file specified throw start up parameters.
-        readDataIfFileSpecified(args);
-
+        if(args!=null && args.length>0){
+            // read data from file if file specified throw start up parameters.
+            boolean success = readDataIfFilesSpecified(args);
+            if(!success){
+                System.exit(-1);
+            }
+        }
         System.out.println(instructions);
         listDataInterval();
 
@@ -179,12 +209,12 @@ public class Main {
 //                System.out.println("Your input is:"+input);
                 if(arr.length==1){
                     if("quit".equalsIgnoreCase(input) || "exit".equalsIgnoreCase(input)){
-                        System.out.println("bye");
+                        System.out.println("bye.");
                         System.exit(0);
                     }else if("help".equalsIgnoreCase(input)){
                         System.out.println(instructions);
                     }else if("list".equalsIgnoreCase(input)){
-                        list(currencyAmount);
+                        list(currencyAmount, false);
                     }else if("clear".equalsIgnoreCase(input)){
                         currencyAmount.clear();
                         exchangeRate.clear();
@@ -195,7 +225,7 @@ public class Main {
                     }
                 }else if(arr.length==2){
                     // add currency data
-                    if(arr[0].length()==3){
+                    if(Pattern.matches(regex, arr[0])){
                         try{
                             String currency = arr[0].toUpperCase();
                             if(currencyAmount.get(currency)==null){
@@ -224,7 +254,7 @@ public class Main {
                             }else{
                                 exchangeRate.replace(currency, Double.valueOf(arr[2]));
                             }
-                            System.out.println("Action succeed.");
+//                            System.out.println("Action succeed.");
                         }catch (NumberFormatException e){
                             System.out.println("error: number format is invalid.");
 //                            e.printStackTrace();
@@ -250,7 +280,7 @@ public class Main {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                list(currencyAmount);
+                list(currencyAmount, true);
             }
         };
         Timer timer = new Timer();
@@ -259,21 +289,25 @@ public class Main {
         timer.scheduleAtFixedRate(task, delay, intevalPeriod);
     }
 
-    public static void list(Map<String, Double> currencyAmount){
+    public static void list(Map<String, Double> currencyAmount, boolean fromTimer){
         if(currencyAmount.size()>0){
             System.out.println("-----------------------------------");
             for(Map.Entry<String, Double> entry: currencyAmount.entrySet()){
                 if(entry.getValue().doubleValue()==0){
                     continue;
                 }
-                StringBuffer content = new StringBuffer(entry.getKey() +" "+entry.getValue());
+                StringBuffer content = new StringBuffer(entry.getKey() +" "+formateDouble(entry.getValue()));
                 if(exchangeRate.get(entry.getKey())!=null && !"USD".equalsIgnoreCase(entry.getKey())){
                     String currencyToUSD = formateDouble(entry.getValue() * exchangeRate.get(entry.getKey()));
-                    content.append("(USD "+currencyToUSD+")");
+                    content.append(" (USD "+currencyToUSD+")");
                 }
                 System.out.println(content.toString());
             }
             System.out.println("-----------------------------------");
+        }else{
+            if(!fromTimer){
+                System.out.println("no data found.");
+            }
         }
     }
 
