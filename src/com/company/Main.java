@@ -230,14 +230,13 @@ public class Main {
 //                        System.out.println(instructions);
                     }
                 }else if(arr.length==2){
-                    if(Pattern.matches(regex, arr[0])){
-                        if("c".equalsIgnoreCase(arr[0])){
+//                    if(Pattern.matches(regex, arr[0])){
+                    if("c".equalsIgnoreCase(arr[0])){
                         readCurrencyFile(arr[1]);
                     }else if("e".equalsIgnoreCase(arr[0])){
                         readExchangeFile(arr[1]);
                     }else if(Pattern.matches(regex, arr[0])){
-                            // add currency data
-                        }
+                        // add currency data
                         try{
                             String currency = arr[0].toUpperCase();
                             if(currencyAmount.get(currency)==null){
