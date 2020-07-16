@@ -165,7 +165,11 @@ public class Main {
         return success;
     }
 
-
+    /**
+     * read file from application parameters
+     * @param args
+     * @return
+     */
     private static boolean readDataIfFilesSpecified(String[] args){
         if(args!=null && args.length>0){
             boolean success=true;
@@ -213,7 +217,6 @@ public class Main {
                 }
                 input = input.trim();
                 String[] arr = input.split(" ");
-//                System.out.println("Your input is:"+input);
                 if(arr.length==1){
                     if("quit".equalsIgnoreCase(input) || "exit".equalsIgnoreCase(input)){
                         System.out.println("bye.");
@@ -228,7 +231,6 @@ public class Main {
                         System.out.println("currency data is removed");
                     }else{
                         System.out.println("error: Invalid input, input \"help\" for help information.");
-//                        System.out.println(instructions);
                     }
                 }else if(arr.length==2){
                     if("c".equalsIgnoreCase(arr[0])){
@@ -261,18 +263,14 @@ public class Main {
                             }else{
                                 exchangeRate.replace(currency, Double.valueOf(arr[2]));
                             }
-//                            System.out.println("Action succeed.");
                         }catch (NumberFormatException e){
                             System.out.println("error: number format is invalid.");
-//                            e.printStackTrace();
                         }
                     }else{
                         System.out.println("error: Invalid input, input \"help\" for help information.");
-//                        System.out.println(instructions);
                     }
                 }else{
                     System.out.println("error: Invalid input, input \"help\" for help information");
-//                    System.out.println(instructions);
                 }
             } catch (IOException e) {
 //                System.out.println("error: input failed, please try again or input \"help\" for help information");
@@ -295,6 +293,11 @@ public class Main {
         timer.scheduleAtFixedRate(task, delay, intevalPeriod);
     }
 
+    /**
+     * list data
+     * @param currencyAmount
+     * @param fromTimer
+     */
     public static void list(Map<String, Double> currencyAmount, boolean fromTimer){
         if(currencyAmount.size()>0){
             System.out.println("-----------------------------------");
