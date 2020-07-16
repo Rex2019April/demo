@@ -1,0 +1,24 @@
+
+This demo project is for recording and showing the currency data, and convert currency to US dollar according to the
+currency exchange rate specified by user or read from file.
+
+Build:
+
+
+Usage:
+1. Input your currency and amount like this(case insensitive):
+	USD 1000
+	hkd 100
+2. Set one kind of currency exchange rate compared to USD like this(case insensitive):
+	ex hkd 0.128975
+	ex CNY 0.142868
+3. Enter "c currencyPath.txt" to specify the currency data file path, you should replace "currencyPath.txt" with your own file path.
+4. Enter "e exchangeRatePath.txt" to specify the exchange rate data file path, you should replace "exchangeRatePath.txt" with your own file path.
+5. Enter "list" to show all data.
+6. Enter "clear" to clear all currency and exchange data.
+7. Enter "quit/exit" to exit.
+8. Enter "help" for help information.
+
+Note:
+
+

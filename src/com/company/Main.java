@@ -12,15 +12,16 @@ public class Main {
      * help info
      */
     private static String instructions="-----------------------instructions---------------------------\n" +
-            "1. input your currency and amount like this:\n\tUSD 1000\n\tHKD 100\n" +
-            "2. set currency exchange rate compared to USD like this: \n" +
+            "1. Input your currency and amount like this(case insensitive):\n\tUSD 1000\n\thkd 100\n" +
+            "2. Set currency exchange rate compared to USD like this(case insensitive): \n" +
             "\tex hkd 0.128975\n" +
             "\tex CNY 0.142868\n" +
-            "3. \"list\" to show all data.\n" +
-            "4. \"cu currencyPath.txt\" to specify the currency data file path, you should replace \"currencyPath.txt\" with your own file path\n" +
-            "5. \"er exchangeRatePath.txt\" to specify the exchange rate data file path, you should replace \"exchangeRatePath.txt\" with your own file path\n" +
-            "6. \"quit/exit\" to exit\n" +
-            "7. \"help\" for help information.\n" +
+            "3. Enter \"c currencyPath.txt\" to specify the currency data file path, you should replace \"currencyPath.txt\" with your own file path.\n" +
+            "4. Enter \"e exchangeRatePath.txt\" to specify the exchange rate data file path, you should replace \"exchangeRatePath.txt\" with your own file path.\n" +
+            "5. Enter \"list\" to show all data.\n" +
+            "6. Enter \"clear\" to clear all data.\n" +
+            "7. Enter \"quit/exit\" to exit.\n" +
+            "8. Enter \"help\" for help information.\n" +
             "--------------------------------------------------\n";
 
     /**
@@ -41,81 +42,103 @@ public class Main {
      * @param filePath
      * @throws Exception
      */
-    private static void readExchangeFile(String filePath) throws Exception {
+    private static boolean readExchangeFile(String filePath) {
+        boolean success=true;
         if(filePath!=null && filePath.length()>0){
-            exchangeRate.clear();
+            ConcurrentHashMap<String, Double> temp = new ConcurrentHashMap<>();
             File f = new File(filePath);
-            System.out.println(f.getAbsoluteFile());
-            BufferedReader bw = new BufferedReader(new FileReader(f));
-            String line = null;
-            while((line = bw.readLine()) != null){
-                line = line.trim();
-                String[] arr = line.split(" ");
-                // add exchange data
-                if(arr[0].length()==3){
-                    String currency = arr[0].toUpperCase();
-                    if(exchangeRate.get(currency)==null){
-                        exchangeRate.put(currency, Double.valueOf(arr[1]));
+            BufferedReader bw = null;
+            try {
+                bw = new BufferedReader(new FileReader(f));
+                String line = null;
+                while((line = bw.readLine()) != null){
+                    line = line.trim();
+                    String[] arr = line.split(" ");
+                    // add exchange data
+                    if(arr[0].length()==3){
+                        String currency = arr[0].toUpperCase();
+                        if(temp.get(currency)==null){
+                            temp.put(currency, Double.valueOf(arr[1]));
+                        }else{
+                            temp.replace(currency, Double.valueOf(arr[1]));
+                        }
                     }else{
-                        exchangeRate.replace(currency, Double.valueOf(arr[1]));
+                        System.out.println("error: exchange format is invalid:"+line);
+                        success=false;
+                        break;
                     }
-                }else{
-                    throw new Exception("exchange format is invalid");
                 }
+            } catch (FileNotFoundException e) {
+                System.out.println("error: file not found");
+                success=false;
+            } catch (IOException e) {
+                System.out.println("error: file read error");
+                success=false;
             }
-            System.out.println("load exchange rate data succeed:"+f.getAbsoluteFile());
+            if(success){
+                exchangeRate=temp;
+                System.out.println("load exchange rate data succeed:"+f.getAbsoluteFile());
+            }
+        }else{
+            System.out.println("error: exchange file path error");
+            success=false;
         }
+        return success;
     }
 
     /**
      * load currency data file
      * @param filePath
-     * @throws Exception
+     * @return
      */
-    private static void readCurrencyFile(String filePath) throws Exception {
+    private static boolean readCurrencyFile(String filePath) {
+        boolean success=true;
         if(filePath!=null && filePath.length()>0){
-            currencyAmount.clear();
+            ConcurrentHashMap<String, Double> temp = new ConcurrentHashMap<>();
             File f = new File(filePath);
-
-            BufferedReader bw = new BufferedReader(new FileReader(f));
-            String line = null;
-            while((line = bw.readLine()) != null){
-                line = line.trim();
-                String[] arr = line.split(" ");
-                // add currency data
-                if(arr[0].length()==3){
-                    String currency = arr[0].toUpperCase();
-                    if(currencyAmount.get(currency)==null){
-                        currencyAmount.put(currency, Double.valueOf(arr[1]));
+            BufferedReader bw = null;
+            try {
+                bw = new BufferedReader(new FileReader(f));
+                String line = null;
+                while((line = bw.readLine()) != null){
+                    line = line.trim();
+                    String[] arr = line.split(" ");
+                    // add currency data
+                    if(arr[0].length()==3){
+                        String currency = arr[0].toUpperCase();
+                        if(temp.get(currency)==null){
+                            temp.put(currency, Double.valueOf(arr[1]));
+                        }else{
+                            temp.replace(currency, temp.get(currency) + Double.valueOf(arr[1]));
+                        }
                     }else{
-                        currencyAmount.replace(currency, currencyAmount.get(currency) + Double.valueOf(arr[1]));
+//                        throw new Exception("currency format is invalid");
+                        System.out.println("error: currency format is invalid:"+line);
+                        success=false;
+                        break;
                     }
-                }else{
-                    throw new Exception("currency format is invalid");
                 }
+
+            } catch (FileNotFoundException e) {
+                System.out.println("error: file not found");
+                success=false;
+            } catch (IOException e) {
+                System.out.println("error: file read error");
+                success=false;
             }
-            System.out.println("load currency data succeed:"+f.getAbsoluteFile());
+            if(success){
+                currencyAmount=temp;
+                System.out.println("load currency data succeed:"+f.getAbsoluteFile());
+            }
+        }else{
+            System.out.println("error: currency file path error");
+            success=false;
         }
+        return success;
     }
 
-    /**
-     * list currency data once per minute
-     */
-    public static void listDataInterval(){
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                list(currencyAmount);
-            }
-        };
-        Timer timer = new Timer();
-        long delay = 5000;
-        long intevalPeriod = 60 * 1000;
-        timer.scheduleAtFixedRate(task, delay, intevalPeriod);
-    }
 
-    public static void main(String[] args) throws Exception {
-        // read data from file if file specified.
+    private static void readDataIfFileSpecified(String[] args){
         if(args!=null && args.length>0){
             try{
                 for(String arg: args){
@@ -134,6 +157,11 @@ public class Main {
                 throw e;
             }
         }
+    }
+    public static void main(String[] args){
+
+        // read data from file if file specified throw start up parameters.
+        readDataIfFileSpecified(args);
 
         System.out.println(instructions);
         listDataInterval();
@@ -157,8 +185,12 @@ public class Main {
                         System.out.println(instructions);
                     }else if("list".equalsIgnoreCase(input)){
                         list(currencyAmount);
+                    }else if("clear".equalsIgnoreCase(input)){
+                        currencyAmount.clear();
+                        exchangeRate.clear();
+                        System.out.println("all data is removed");
                     }else{
-                        System.out.println("-----Invalid input, inpute \"help\" for help------");
+                        System.out.println("error: Invalid input, input \"help\" for help information.");
 //                        System.out.println(instructions);
                     }
                 }else if(arr.length==2){
@@ -172,16 +204,14 @@ public class Main {
                                 currencyAmount.replace(currency, currencyAmount.get(currency) + Double.valueOf(arr[1]));
                             }
                         }catch (NumberFormatException e){
-//                            e.printStackTrace();
-                            System.out.println("-----number format is invalid-----");
+                            System.out.println("error: number format is invalid");
                         }
-                    }else if("cu".equalsIgnoreCase(arr[0])){
+                    }else if("c".equalsIgnoreCase(arr[0])){
                         readCurrencyFile(arr[1]);
-                    }else if("er".equalsIgnoreCase(arr[0])){
+                    }else if("e".equalsIgnoreCase(arr[0])){
                         readExchangeFile(arr[1]);
                     }else{
-                        System.out.println("-----Invalid input, inpute \"help\" for help------");
-//                        System.out.println(instructions);
+                        System.out.println("error: Invalid input, input \"help\" for help information.");
                     }
                 }else if(arr.length==3){
                     // set currency exchange rate
@@ -194,22 +224,39 @@ public class Main {
                             }else{
                                 exchangeRate.replace(currency, Double.valueOf(arr[2]));
                             }
+                            System.out.println("Action succeed.");
                         }catch (NumberFormatException e){
-                            System.out.println("-----number format is invalid-----");
+                            System.out.println("error: number format is invalid.");
 //                            e.printStackTrace();
                         }
                     }else{
-                        System.out.println("-----Invalid input, inpute \"help\" for help------");
+                        System.out.println("error: Invalid input, input \"help\" for help information.");
 //                        System.out.println(instructions);
                     }
                 }else{
-                    System.out.println("-----Invalid input, inpute \"help\" for help------");
+                    System.out.println("error: Invalid input, input \"help\" for help information");
 //                    System.out.println(instructions);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("error: input failed, please try again or input \"help\" for help information");
             }
         }
+    }
+
+    /**
+     * list currency data once per minute
+     */
+    public static void listDataInterval(){
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                list(currencyAmount);
+            }
+        };
+        Timer timer = new Timer();
+        long delay = 5000;
+        long intevalPeriod = 60 * 1000;
+        timer.scheduleAtFixedRate(task, delay, intevalPeriod);
     }
 
     public static void list(Map<String, Double> currencyAmount){
